@@ -3,6 +3,7 @@
 A minimal AI-agent activity monitor. Reads a stream of LLM provider events (OpenAI / Anthropic), evaluates each one against a YAML policy, appends a tamper-evident audit log, and raises an incident alert when a single actor accumulates enough risk.
 
 I use claude code for quick bug fixes, project setup, hash-chained creation and decision.csv save, writting all tests, readme file generation. 
+
 I use gemini to check APIs and code exmaples, also gemini explained to me how this project works.  
 
 ---
