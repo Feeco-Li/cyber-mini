@@ -15,7 +15,7 @@ I use gemini to check APIs and code exmaples, also gemini explained to me how th
 - Node.js 22+
 - `npm install`
 
-### Run (no build step)
+### Run 
 
 ```bash
 npm run dev
