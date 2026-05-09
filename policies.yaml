@@ -1,0 +1,26 @@
+version: 1
+default: block # default-deny is intentional
+rules:
+  - id: R-ALLOW-CHAT
+    when: { kind: chat.completion }
+    then: allow
+  - id: R-SANITIZE-PII
+    when: { payload_contains_any: ["ssn", "\\d{3}-\\d{2}-\\d{4}"] }
+    then: sanitize
+    replace_with: "[REDACTED]"
+  - id: R-BLOCK-EGRESS
+    when:
+      tool_in: ["http_request"]
+      url_host_not_in: ["api.acme.io", "*.acme.io"]
+    then: block
+  - id: R-BLOCK-SENSITIVE-FS
+    when:
+      {
+        tool_in: ["file_read", "file_write"],
+        path_prefix_any: ["/etc/", "/var/log/"],
+      }
+    then: block
+  - id: R-BLOCK-PROMPT-INJECTION
+    when:
+      { payload_contains_any: ["ignore previous instructions", "exfiltrate"] }
+    then: block
