@@ -2,6 +2,9 @@
 
 A minimal AI-agent activity monitor. Reads a stream of LLM provider events (OpenAI / Anthropic), evaluates each one against a YAML policy, appends a tamper-evident audit log, and raises an incident alert when a single actor accumulates enough risk.
 
+I use claude code for quick bug fixes, project setup, hash-chained creation and decision.csv save, writting all tests, readme file generation. 
+I use gemini to check APIs and code exmaples, also gemini explained to me how this project works.  
+
 ---
 
 ## How to run
@@ -24,13 +27,6 @@ Reads `events.jsonl` and `policies.yaml` from the working directory. Writes:
 | `audit.log` | One JSON record per event, SHA-256 hash-chained |
 | `decisions.csv` | `event_id,verdict,rule_id` for incident-threshold events |
 | stderr | `INCIDENT` lines when an actor's cumulative risk score ≥ 70 |
-
-### Build and run compiled output
-
-```bash
-npm run build
-npm run start
-```
 
 ### Tests
 
@@ -108,7 +104,7 @@ An actor reaching 70 points triggers an `INCIDENT` on stderr. Score resets on pr
 
 ## Design choices
 
-**No database, no HTTP server.** Everything is file I/O and stdout/stderr. The goal was a self-contained, auditable pipeline that can be piped into anything else.
+**Block action after 2 high-risk action.** block could be set as 30 to give non-technical user more tolerance.
 
 **YAML policy, not code.** Rules live in `policies.yaml` so they can be changed without a recompile. The policy schema is intentionally flat — one level of conditions, no nested logic — to keep it readable by non-engineers.
 
@@ -116,7 +112,6 @@ An actor reaching 70 points triggers an `INCIDENT` on stderr. Score resets on pr
 
 **Block-first evaluation order.** The evaluator checks `block` rules before `sanitize` before `allow`. This means a `block` rule always wins over an `allow` rule on the same action, which is the safe default for a security tool.
 
-**Hash chain without persistence of `prev_hash`.** `prev_hash` is kept in module-level memory. A process restart resets it to `GENESIS_HASH`, creating a new chain segment. A real system would load the last hash from the log on startup.
 
 ---
 
@@ -127,6 +122,13 @@ An actor reaching 70 points triggers an `INCIDENT` on stderr. Score resets on pr
 - **Risk scores don't persist.** Restarting the process resets all actor scores. A production version would checkpoint scores to disk or a KV store.
 - **`decisions.csv` has no header row.** The format is `event_id,verdict,rule_id` but no column headers are written. Easy to add; skipped to keep `main.ts` minimal.
 - **No streaming output for `sanitize`.** The sanitized `payload_text` is updated in memory but the sanitized version is not re-emitted anywhere. The audit record captures the pre-sanitize verdict; a downstream system would need to act on the mutated action.
+
+
+## notes
+
+- **`why block prompt injection` Because an attacker can hijack the agent's content and make it exfiltrate data.
+- **`why block egress to unknown hosts` Because approved APIs are known-good; anything else is a potential data exfiltration path.
+- **`why sanitize PII` Because auditi log itself is a liability if it stores raw SSNs.
 
 ---
 
