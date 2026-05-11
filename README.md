@@ -146,3 +146,10 @@ An actor reaching 70 points triggers an `INCIDENT` on stderr. Score resets on pr
 | Tests (`cyber-mini.test.ts`) | ~5 min(AI) |
 | README | ~15 min (AI+Manual) |
 | **Total** | **~3 hours** |
+
+---
+
+## Screen Recording (3-hour session proof)
+
+- https://youtu.be/fiwplPZ7SxU?si=LfuIKvicyVrx3Ob2
+- https://youtu.be/hMHg_Q7aKBw?si=3eOaAqZKRsNbyD2D
